@@ -9,7 +9,7 @@ export default function RelayFavicon({
   ...rest
 }) {
   const hasNoFavicon = useMemo(() => {
-    return url.includes("relay.damus.io") || url.includes("relay.snort.social");
+    return url.includes("relay.damus.io");
   }, [url]);
   const domain = url
     .replace(hasNoFavicon ? "wss://relay." : "wss://", "https://")

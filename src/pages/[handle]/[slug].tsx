@@ -64,7 +64,7 @@ export async function getStaticProps({ locale, params }) {
       profile,
       pubkey,
       slug,
-      event,
+      event: event ?? null,
       ...(await serverSideTranslations(locale, ["common"])),
     },
   };

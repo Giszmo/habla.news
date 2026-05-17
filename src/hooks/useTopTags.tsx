@@ -12,7 +12,7 @@ export default function useTopTags(n = 10) {
   const { isTagMuted } = useModeration();
   const tags = useLiveQuery(async () => {
     try {
-      const evs = await db.eventTags.where("tag").equals("t").toArray();
+      const evs = await db.eventTags.where("tagValue").equals("t").toArray();
       return evs
         .map((e) => e.value)
         .flat()

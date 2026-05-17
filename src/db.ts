@@ -9,13 +9,12 @@ import {
 import { uniqByFn } from "@habla/util";
 import { findTag } from "@habla/tags";
 
-const relays = [
-  "wss://relay.snort.social",
-  "wss://relay.damus.io/",
-  "wss://nostr.wine/",
-  "wss://nos.lol/",
-  "wss://soloco.nl/",
-];
+ const relays = [
+  "wss://relay.damus.io",
+  "wss://nostr.wine",
+  "wss://nos.lol",
+  "wss://soloco.nl"
+ ];
 
 const ndk = new NDK({
   explicitRelayUrls: relays,
