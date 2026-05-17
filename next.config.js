@@ -10,6 +10,13 @@ const withPWA = require("next-pwa")({
 });
 
 module.exports = withPWA({
+  transpilePackages: ["@void-cat/api"],
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push("@getalby/bitcoin-connect", "@getalby/bitcoin-connect-react");
+    }
+    return config;
+  },
   i18n: {
     defaultLocale: "en",
     locales: [

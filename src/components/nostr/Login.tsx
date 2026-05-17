@@ -12,6 +12,16 @@ import NDK, {
 } from "@nostr-dev-kit/ndk";
 import { useAtom, useAtomValue } from "jotai";
 import { nip05, nip19 } from "nostr-tools";
+import {
+  createNostrConnectURI,
+  BunkerSigner,
+} from "nostr-tools-nip46/nip46";
+import {
+  generateSecretKey,
+  getPublicKey,
+} from "nostr-tools-nip46";
+import { bytesToHex } from "nostr-tools-nip46/utils";
+import qrcode from "qrcode-generator";
 
 import {
   useDisclosure,
@@ -24,6 +34,7 @@ import {
   Input,
   Divider,
   Stack,
+  Spinner,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -91,6 +102,9 @@ function LoginDialog({ isOpen, onClose }) {
   const [relays] = useAtom(relaysAtom);
   const toast = useToast();
   const [session, setSession] = useAtom(sessionAtom);
+  const [qrDataUrl, setQrDataUrl] = useState(null);
+  const [qrLoading, setQrLoading] = useState(false);
+  const [qrAbortCtrl, setQrAbortCtrl] = useState(null);
 
   async function loginWithPubkey() {
     try {
@@ -211,6 +225,90 @@ function LoginDialog({ isOpen, onClose }) {
     }
   }
 
+  async function loginWithQR() {
+    if (qrAbortCtrl) {
+      qrAbortCtrl.abort();
+      setQrAbortCtrl(null);
+      setQrDataUrl(null);
+      setQrLoading(false);
+      return;
+    }
+    try {
+      setQrLoading(true);
+      const qrRelays = ["wss://relay.primal.net", "wss://relay.nsec.app", "wss://nos.lol"];
+      const sk = generateSecretKey();
+      const pk = getPublicKey(sk);
+      const secret = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+      const uri = createNostrConnectURI({
+        clientPubkey: pk,
+        relays: qrRelays,
+        secret,
+        name: "Habla",
+        url: typeof window !== "undefined" ? window.location.origin : "https://habla.nostr.info",
+      });
+
+      const qr = qrcode(0, "M");
+      qr.addData(uri);
+      qr.make();
+      setQrDataUrl(qr.createDataURL(6, 4));
+
+      const abortCtrl = new AbortController();
+      setQrAbortCtrl(abortCtrl);
+
+      const s = await Promise.race([
+        BunkerSigner.fromURI(sk, uri, {}, 120000),
+        new Promise((_, reject) => {
+          abortCtrl.signal.addEventListener("abort", () => {
+            reject(Object.assign(new Error("Aborted"), { name: "AbortError" }));
+          });
+        }),
+      ]);
+
+      if (!s || !s.bp) throw new Error("No bunker params received");
+
+      const bp = s.bp;
+      const bunkerUrl = new URL(`bunker://${bp.pubkey}`);
+      bp.relays.forEach((r) => bunkerUrl.searchParams.append("relay", r));
+      if (bp.secret) bunkerUrl.searchParams.set("secret", bp.secret);
+
+      const bunkerNDK = new NDK({ explicitRelayUrls: bp.relays });
+      await bunkerNDK.connect();
+      const localSigner = new NDKPrivateKeySigner(bytesToHex(sk));
+      const signer = new NDKNip46Signer(bunkerNDK, bunkerUrl.toString(), localSigner);
+      signer.on("authUrl", (url) => {
+        window.open(url, "auth", "width=600,height=600");
+      });
+      const user = await signer.blockUntilReady();
+      if (user) {
+        ndk.signer = signer;
+        setSession({
+          method: "nip46",
+          pubkey: user.pubkey,
+          bunker: {
+            url: bunkerUrl.toString(),
+            privkey: bytesToHex(sk),
+            relays: bp.relays,
+          },
+        });
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        toast({
+          title: "Could not sign in",
+          status: "error",
+          description: error.message,
+        });
+        console.error(error);
+      }
+    } finally {
+      setQrLoading(false);
+      setQrAbortCtrl(null);
+      setQrDataUrl(null);
+    }
+  }
+
   return (
     <>
       <Stack mb={5} gap={2}>
@@ -235,6 +333,37 @@ function LoginDialog({ isOpen, onClose }) {
           onClick={() => loginWithExtension(true)}
         >
           {t("log-in")}
+        </Button>
+      </Stack>
+
+      <Divider />
+
+      <Stack my={4} gap={2}>
+        <Heading fontSize="lg" mb={2}>
+          📱 Mobile signer (Amber, etc.)
+        </Heading>
+        <Text>Scan the QR code with your Nostr signer app.</Text>
+        {qrDataUrl && (
+          <Flex justify="center" p={4} bg="white" borderRadius="0">
+            <img src={qrDataUrl} alt="nostrconnect QR" style={{ maxWidth: 280, display: "block", imageRendering: "crisp-edges" }} />
+          </Flex>
+        )}
+        <Button
+          maxW="12rem"
+          colorScheme="orange"
+          onClick={loginWithQR}
+          isDisabled={qrLoading && !qrAbortCtrl}
+        >
+          {qrAbortCtrl ? (
+            <>Cancel</>
+          ) : qrLoading ? (
+            <>
+              <Spinner size="sm" mr={2} />
+              Generating…
+            </>
+          ) : (
+            "Show QR Code"
+          )}
         </Button>
       </Stack>
 

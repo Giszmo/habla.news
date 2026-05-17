@@ -44,7 +44,9 @@ import { loadService, loadInvoice } from "@habla/lnurl";
 import { formatShortNumber, formatSats } from "@habla/format";
 import User from "@habla/components/nostr/User";
 import { getZapTags, getRelays } from "@habla/nip57";
-import("@getalby/bitcoin-connect-react"); // enable NWC
+if (typeof window !== "undefined") {
+  import("@getalby/bitcoin-connect-react"); // enable NWC
+}
 
 const QrCode = dynamic(() => import("@habla/components/QrCode"), {
   ssr: false,
