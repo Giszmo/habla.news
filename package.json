@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "dev": "next",
+    "dev": "bash scripts/dev.sh",
     "build": "next build",
     "start": "next start",
     "i18n": "i18next"
