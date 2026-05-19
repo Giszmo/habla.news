@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@nostr-dev-kit/ndk@2.12.0': c3b0fc8c6bc425fc3de3fba4b71c1063d4bf6f98e26618dd8ec50367f8894c9e
+
 importers:
 
   .:
@@ -40,7 +43,7 @@ importers:
         version: 3.12.2(@types/react@18.3.28)(react@18.3.1)(typescript@4.9.5)
       '@nostr-dev-kit/ndk':
         specifier: 2.12.0
-        version: 2.12.0(typescript@4.9.5)
+        version: 2.12.0(patch_hash=c3b0fc8c6bc425fc3de3fba4b71c1063d4bf6f98e26618dd8ec50367f8894c9e)(typescript@4.9.5)
       '@nostr-dev-kit/ndk-cache-dexie':
         specifier: 2.5.13
         version: 2.5.13(typescript@4.9.5)
@@ -5247,7 +5250,7 @@ snapshots:
 
   '@nostr-dev-kit/ndk-cache-dexie@2.5.13(typescript@4.9.5)':
     dependencies:
-      '@nostr-dev-kit/ndk': 2.12.0(typescript@4.9.5)
+      '@nostr-dev-kit/ndk': 2.12.0(patch_hash=c3b0fc8c6bc425fc3de3fba4b71c1063d4bf6f98e26618dd8ec50367f8894c9e)(typescript@4.9.5)
       debug: 4.4.3
       dexie: 4.4.2
       nostr-tools: 2.23.3(typescript@4.9.5)
@@ -5256,7 +5259,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@nostr-dev-kit/ndk@2.12.0(typescript@4.9.5)':
+  '@nostr-dev-kit/ndk@2.12.0(patch_hash=c3b0fc8c6bc425fc3de3fba4b71c1063d4bf6f98e26618dd8ec50367f8894c9e)(typescript@4.9.5)':
     dependencies:
       '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0

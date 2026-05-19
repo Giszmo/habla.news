@@ -29,7 +29,7 @@ export default function Feed({ filter, until, limit = 3, options = {} }) {
   }, [filter, until, limit]);
   const { events, eose } = useEvents(ndkFilter, {
     closeOnEose: true,
-    cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
+    cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST,
     ...options,
   });
   const oldest = useMemo(() => {

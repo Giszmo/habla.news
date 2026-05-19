@@ -1,0 +1,11 @@
+allowBuilds:
+  '@parcel/watcher': true
+  '@swc/core': true
+  bufferutil: true
+  core-js: true
+  es5-ext: true
+  lmdb: true
+  msgpackr-extract: true
+  utf-8-validate: true
+patchedDependencies:
+  '@nostr-dev-kit/ndk@2.12.0': patches/@nostr-dev-kit__ndk@2.12.0.patch

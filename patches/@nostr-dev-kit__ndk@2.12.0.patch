@@ -1,0 +1,24 @@
+diff --git a/dist/index.js b/dist/index.js
+index 92b0b584d2edae9955d0784d57955cc9ff0c07b2..f4d993fadab535e3e4b4f5f817de0c3cb93721c4 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -5237,6 +5237,7 @@ var NDKSubscription = class extends import_tseep4.EventEmitter {
+           cacheResult.then((events) => {
+             updateStateFromCacheResults(events);
+           });
++          loadFromRelays();
+         }
+         return null;
+       } else {
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 040c6599f17a1cb0593c3dc8da0a9ec5607e60a3..e85d652ab23574f66dbdbbc5a52dbadb27bb92c6 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -5102,6 +5102,7 @@ var NDKSubscription = class extends EventEmitter4 {
+           cacheResult.then((events) => {
+             updateStateFromCacheResults(events);
+           });
++          loadFromRelays();
+         }
+         return null;
+       } else {
