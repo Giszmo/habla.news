@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
 import Link from "next/link";
@@ -105,6 +105,7 @@ function LoginDialog({ isOpen, onClose }) {
   const [qrDataUrl, setQrDataUrl] = useState(null);
   const [qrLoading, setQrLoading] = useState(false);
   const [qrAbortCtrl, setQrAbortCtrl] = useState(null);
+  const qrAbortCtrlRef = useRef(null);
 
   async function loginWithPubkey() {
     try {
@@ -228,6 +229,7 @@ function LoginDialog({ isOpen, onClose }) {
   async function loginWithQR() {
     if (qrAbortCtrl) {
       qrAbortCtrl.abort();
+      qrAbortCtrlRef.current = null;
       setQrAbortCtrl(null);
       setQrDataUrl(null);
       setQrLoading(false);
@@ -255,6 +257,7 @@ function LoginDialog({ isOpen, onClose }) {
       setQrDataUrl(qr.createDataURL(6, 4));
 
       const abortCtrl = new AbortController();
+      qrAbortCtrlRef.current = abortCtrl;
       setQrAbortCtrl(abortCtrl);
 
       const s = await Promise.race([
@@ -303,11 +306,23 @@ function LoginDialog({ isOpen, onClose }) {
         console.error(error);
       }
     } finally {
+      qrAbortCtrlRef.current = null;
       setQrLoading(false);
       setQrAbortCtrl(null);
       setQrDataUrl(null);
     }
   }
+
+  useEffect(() => {
+    loginWithQR();
+    return () => {
+      qrAbortCtrlRef.current?.abort();
+      qrAbortCtrlRef.current = null;
+    };
+    // Auto-start on dialog mount; loginWithQR is intentionally excluded from
+    // deps so this fires exactly once per mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
