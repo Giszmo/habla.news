@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 
+const fs = require("fs");
+const path = require("path");
+
 const isProduction = process.env.NODE_ENV === "production";
+
+const localFeatured = path.join(__dirname, "src", "featured.local.ts");
+const defaultFeatured = path.join(__dirname, "src", "featured.default.ts");
+const featuredModule = fs.existsSync(localFeatured) ? localFeatured : defaultFeatured;
 
 const withPWA = require("next-pwa")({
   dest: "public",
@@ -15,6 +22,7 @@ module.exports = withPWA({
     if (isServer) {
       config.externals.push("@getalby/bitcoin-connect", "@getalby/bitcoin-connect-react");
     }
+    config.resolve.alias["@habla-featured"] = featuredModule;
     return config;
   },
   i18n: {
