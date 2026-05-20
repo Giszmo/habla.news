@@ -2,6 +2,7 @@
   "private": true,
   "scripts": {
     "dev": "bash scripts/dev.sh",
+    "prebuild": "node scripts/gen-nostr-json.mjs",
     "build": "next build",
     "start": "next start",
     "i18n": "i18next"

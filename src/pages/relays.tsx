@@ -29,7 +29,7 @@ export default function RelaysPage() {
 export async function getStaticProps({ locale }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ["common"])),
+      ...(await serverSideTranslations("en", ["common"])),
     },
   };
 }

@@ -1,8 +1,6 @@
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-
-import { Text } from "@chakra-ui/react";
-import { nip05 } from "nostr-tools";
 
 import Layout from "@habla/layouts/Wide";
 
@@ -10,19 +8,24 @@ const NProfile = dynamic(() => import("@habla/components/nostr/NostrAddress"), {
   ssr: false,
 });
 
-export default function Profile({ nip05 }) {
+export default function Profile() {
+  const router = useRouter();
+  const nip05 = typeof router.query.nip05 === "string" ? router.query.nip05 : undefined;
   return (
     <Layout>
-      <NProfile query={nip05} key={nip05} />
+      {nip05 ? <NProfile query={nip05} key={nip05} /> : null}
     </Layout>
   );
 }
 
-export const getServerSideProps = async ({ locale, query }) => {
+export async function getStaticProps({ locale }) {
   return {
     props: {
-      ...query,
-      ...(await serverSideTranslations(locale, ["common"])),
+      ...(await serverSideTranslations("en", ["common"])),
     },
   };
-};
+}
+
+export async function getStaticPaths() {
+  return { paths: [], fallback: false };
+}

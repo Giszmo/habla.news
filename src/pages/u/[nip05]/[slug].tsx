@@ -1,7 +1,6 @@
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-
-import { nip05, nip19 } from "nostr-tools";
 
 import Layout from "@habla/layouts/Wide";
 
@@ -12,19 +11,27 @@ const Nip05Address = dynamic(
   }
 );
 
-export default function Profile({ nip05, slug }) {
+export default function Profile() {
+  const router = useRouter();
+  const nip05 = typeof router.query.nip05 === "string" ? router.query.nip05 : undefined;
+  const slug = typeof router.query.slug === "string" ? router.query.slug : undefined;
   return (
     <Layout>
-      <Nip05Address key={`${nip05}-${slug}`} identifier={slug} query={nip05} />
+      {nip05 && slug ? (
+        <Nip05Address key={`${nip05}-${slug}`} identifier={slug} query={nip05} />
+      ) : null}
     </Layout>
   );
 }
 
-export const getServerSideProps = async ({ locale, query }) => {
+export async function getStaticProps({ locale }) {
   return {
     props: {
-      ...query,
-      ...(await serverSideTranslations(locale, ["common"])),
+      ...(await serverSideTranslations("en", ["common"])),
     },
   };
-};
+}
+
+export async function getStaticPaths() {
+  return { paths: [], fallback: false };
+}

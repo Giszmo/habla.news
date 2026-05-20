@@ -50,12 +50,7 @@ export async function getStaticProps({ locale, params }) {
   const { handle, slug } = params;
   const pubkey = getPubkey(handle);
   if (!pubkey) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
+    return { notFound: true };
   }
   const event = await getPost(pubkey, slug);
   const profile = await getProfile(pubkey);
@@ -65,7 +60,7 @@ export async function getStaticProps({ locale, params }) {
       pubkey,
       slug,
       event: event ?? null,
-      ...(await serverSideTranslations(locale, ["common"])),
+      ...(await serverSideTranslations("en", ["common"])),
     },
   };
 }
@@ -90,6 +85,6 @@ export async function getStaticPaths() {
 
   return {
     paths,
-    fallback: "blocking",
+    fallback: false,
   };
 }

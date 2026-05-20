@@ -30,6 +30,9 @@ yarn-error.log*
 # per-deployment NIP-05 / Featured override (see src/featured.default.ts)
 /src/featured.local.ts
 
+# generated at build time by scripts/gen-nostr-json.mjs
+/public/.well-known/nostr.json
+
 # vercel
 .vercel
 

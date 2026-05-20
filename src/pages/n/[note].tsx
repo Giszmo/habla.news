@@ -32,10 +32,14 @@ export default function NotePage() {
   );
 }
 
-export async function getServerSideProps({ locale }) {
+export async function getStaticProps({ locale }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ["common"])),
+      ...(await serverSideTranslations("en", ["common"])),
     },
   };
+}
+
+export async function getStaticPaths() {
+  return { paths: [], fallback: false };
 }
